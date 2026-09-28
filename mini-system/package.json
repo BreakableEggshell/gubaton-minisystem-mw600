@@ -1,0 +1,17 @@
+{
+  "name": "mini-system",
+  "version": "1.0.0",
+  "description": "Task mini system: Express + MySQL API with insert and retrieve",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "express": "^5.2.1",
+    "mysql2": "^3.24.4"
+  }
+}

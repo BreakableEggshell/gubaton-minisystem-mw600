@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task List</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Task List</h1>
+
+    <h2>Add Task</h2>
+    <div class="form-row">
+      <input type="text" id="title" placeholder="Title">
+      <select id="status">
+        <option value="todo">todo</option>
+        <option value="in-progress">in-progress</option>
+        <option value="done">done</option>
+      </select>
+      <input type="date" id="dueDate">
+      <button id="addBtn">Add Task</button>
+    </div>
+
+    <h2>Tasks</h2>
+    <button id="loadBtn">Load Tasks</button>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Status</th>
+            <th>Due Date</th>
+          </tr>
+        </thead>
+        <tbody id="taskTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const table = document.getElementById("taskTable");
+
+    function showMessage(text) {
+      table.innerHTML = "";
+      const cell = table.insertRow().insertCell();
+      cell.colSpan = 4;
+      cell.className = "empty";
+      cell.textContent = text;
+    }
+
+    async function loadTasks() {
+      try {
+        const res = await fetch("/api/tasks");
+        if (!res.ok) throw new Error();
+        const tasks = await res.json();
+
+        if (tasks.length === 0) {
+          showMessage("No tasks yet.");
+          return;
+        }
+
+        table.innerHTML = "";
+        tasks.forEach(task => {
+          const row = table.insertRow();
+          row.insertCell().textContent = task.id;
+          row.insertCell().textContent = task.title;
+          row.insertCell().textContent = task.status;
+          row.insertCell().textContent = task.due_date || "-";
+        });
+      } catch (err) {
+        showMessage("Could not load tasks.");
+      }
+    }
+
+    async function addTask() {
+      const title = document.getElementById("title");
+      const status = document.getElementById("status");
+      const dueDate = document.getElementById("dueDate");
+
+      if (title.value.trim() === "") {
+        alert("Please enter a title.");
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/tasks", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: title.value.trim(),
+            status: status.value,
+            due_date: dueDate.value
+          })
+        });
+        const data = await res.json();
+        alert(data.message);
+
+        if (res.ok) {
+          title.value = "";
+          status.value = "todo";
+          dueDate.value = "";
+          loadTasks();
+        }
+      } catch (err) {
+        alert("Could not connect to the server.");
+      }
+    }
+
+    document.getElementById("addBtn").addEventListener("click", addTask);
+    document.getElementById("loadBtn").addEventListener("click", loadTasks);
+
+    loadTasks();
+  </script>
+</body>
+</html>

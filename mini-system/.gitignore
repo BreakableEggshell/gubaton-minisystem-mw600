@@ -5,3 +5,6 @@ Thumbs.db
 # editor files
 .vscode/
 .idea/
+
+# dependencies
+node_modules/
